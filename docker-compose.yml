@@ -1,0 +1,30 @@
+services:
+  postgres:
+    image: postgres:17.5-alpine3.21
+    command: "-d 1"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=merge
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 2s
+      retries: 5
+
+  neon-proxy:
+    image: ghcr.io/timowilhelm/local-neon-http-proxy:main
+    environment:
+      - PG_CONNECTION_STRING=postgres://postgres:postgres@postgres:5432/merge
+    ports:
+      - "4444:4444"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  db_data:
