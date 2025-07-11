@@ -1,16 +1,15 @@
 "use client"
 
-import { Client } from "@/components/client";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useTRPC } from "@/trpc/client";
-import { getQueryClient, trpc } from "@/trpc/server";
-import { dehydrate, HydrationBoundary, useMutation } from "@tanstack/react-query";
-import { Suspense } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 import { toast } from "sonner";
 
 export default function Home() {
   const trpc = useTRPC()
-
+  const [value, setValue] = useState("")
   const invoke = useMutation(trpc.invoke.mutationOptions({
     onSuccess: () => {
       toast.success("Event created successfully!");
@@ -25,8 +24,9 @@ export default function Home() {
 
   return (
     <div className="max-w-7xl p-7">
+      <Input value={value} onChange={(e) => setValue(e.target.value)} />
       <Button size={"lg"} disabled={invoke.isPending} onClick={() => invoke.mutate({
-        text: "yousafbhaikhan@10gmail.com"
+        value: value
       })}>
         {invoke.isPending ? 'Loading...' : 'Invoke function'}
       </Button>
