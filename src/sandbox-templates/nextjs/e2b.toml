@@ -1,0 +1,17 @@
+# This is a config for E2B sandbox template.
+# You can use template ID (mav13p50o4ubksjyhq8c) or template name (merge-1st-sandbox) to create a sandbox:
+
+# Python SDK
+# from e2b import Sandbox, AsyncSandbox
+# sandbox = Sandbox("merge-1st-sandbox") # Sync sandbox
+# sandbox = await AsyncSandbox.create("merge-1st-sandbox") # Async sandbox
+
+# JS SDK
+# import { Sandbox } from 'e2b'
+# const sandbox = await Sandbox.create('merge-1st-sandbox')
+
+team_id = "02d2ca1a-8c4e-4285-b422-5cfc1a135fc8"
+start_cmd = "/compile_page.sh"
+dockerfile = "e2b.Dockerfile"
+template_name = "merge-1st-sandbox"
+template_id = "mav13p50o4ubksjyhq8c"
