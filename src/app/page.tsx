@@ -17,9 +17,6 @@ export default function Home() {
     onError: (error) => {
       toast.error("An error occurred while creating the event.");
     },
-    onSettled: () => {
-      toast.info("Event creation completed.");
-    }
   }))
 
   return (
