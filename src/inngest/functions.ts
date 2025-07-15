@@ -20,9 +20,10 @@ export const helloWorld = inngest.createFunction(
       name: "code-agent",
       description: "An expert coding agent.",
       system: PROMPT,
-      model: gemini({
-        model: "gemini-2.0-flash",
-        apiKey: config.env.GOOGLE_GENERATIVE_AI_API_KEY
+      model: openai({
+        apiKey: config.env.GITHUB_OPEN_AI_API_KEY!,
+        model: "gpt-4.1",
+        baseUrl: "https://models.github.ai/inference",
       }),
       tools: [
         terminalTool(sandboxId),
