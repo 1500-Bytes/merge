@@ -1,10 +1,11 @@
 import { inngest } from "./client";
-import { anthropic, createAgent, createNetwork, createTool } from "@inngest/agent-kit"
+import { anthropic, createAgent, createNetwork, createTool, gemini, openai } from "@inngest/agent-kit"
 import { Sandbox } from "@e2b/code-interpreter"
 import { getSandbox, lastAssistantTextMessageContent } from "@/lib/utils";
 import { z } from "zod";
 import { PROMPT } from "@/lib/constants";
 import { createOrUpdateFilesTool, readFilesTool, terminalTool } from "./tools";
+import { config } from "@/lib/config";
 
 export const helloWorld = inngest.createFunction(
   { id: "hello-world", name: "hello-world" },
@@ -14,16 +15,14 @@ export const helloWorld = inngest.createFunction(
       const sandbox = await Sandbox.create("merge-1st-sandbox")
       return sandbox.sandboxId
     })
+
     const codeAgent = createAgent({
       name: "code-agent",
       description: "An expert coding agent.",
       system: PROMPT,
-      model: anthropic({
-        model: "claude-3-5-sonnet-latest",
-        defaultParameters: {
-          max_tokens: 1000,
-          temperature: 0.1
-        }
+      model: gemini({
+        model: "gemini-2.0-flash",
+        apiKey: config.env.GOOGLE_GENERATIVE_AI_API_KEY
       }),
       tools: [
         terminalTool(sandboxId),

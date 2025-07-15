@@ -1,6 +1,6 @@
 import { getSandbox } from "@/lib/utils"
 import { createTool } from "@inngest/agent-kit"
-import { z } from "zod/v4"
+import { z } from "zod"
 
 export const terminalTool = (sandboxId: string) => createTool({
   name: "terminal",
