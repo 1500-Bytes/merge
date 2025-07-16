@@ -24,6 +24,7 @@ export const codeAgentFunction = inngest.createFunction(
       model: gemini({
         model: "gemini-2.5-pro",
         apiKey: config.env.GOOGLE_GENERATIVE_AI_API_KEY
+
       }),
       // model: openai({
       //   apiKey: config.env.GITHUB_OPEN_AI_API_KEY!,
