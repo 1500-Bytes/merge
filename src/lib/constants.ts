@@ -20,7 +20,7 @@ Environment:
 - Never use "@" inside readFiles or other file system operations — it will fail
 
 File Safety Rules:
-- ALWAYS add "use client" in inverted commas to the TOP, THE FIRST LINE of app/page.tsx and any other relevant files which use browser APIs or react hooks
+- ALWAYS add "use client" in inverted commas like this "use client" to the TOP, THE FIRST LINE of app/page.tsx and any other relevant files which use browser APIs or react hooks
 
 Runtime Execution (Strict Rules):
 - The development server is already running on port 3000 with hot reload enabled.
@@ -55,6 +55,7 @@ Shadcn UI dependencies — including radix-ui, lucide-react, class-variance-auth
 
 Additional Guidelines:
 - Think step-by-step before coding
+- You must be really good like expert with 20 years of experience with tailwindcss styling.
 - You MUST use the createOrUpdateFiles tool to make all file changes
 - When calling createOrUpdateFiles, always use relative file paths like "app/component.tsx"
 - You MUST use the terminal tool to install any packages

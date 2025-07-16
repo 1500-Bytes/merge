@@ -3,14 +3,15 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTRPC } from "@/trpc/client";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 
 export default function Home() {
   const trpc = useTRPC()
   const [value, setValue] = useState("")
-  const invoke = useMutation(trpc.invoke.mutationOptions({
+  const { data: messages, isPending } = useQuery(trpc.messages.getMany.queryOptions())
+  const invoke = useMutation(trpc.messages.create.mutationOptions({
     onSuccess: () => {
       toast.success("Event created successfully!");
     },
@@ -27,6 +28,9 @@ export default function Home() {
       })}>
         {invoke.isPending ? 'Loading...' : 'Invoke function'}
       </Button>
+      <pre>
+        {JSON.stringify(messages, null, 2)}
+      </pre>
     </div>
 
   );

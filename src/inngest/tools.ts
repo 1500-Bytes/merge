@@ -1,6 +1,7 @@
 import { getSandbox } from "@/lib/utils"
-import { createTool } from "@inngest/agent-kit"
+import { createTool, Tool } from "@inngest/agent-kit"
 import { z } from "zod"
+import { type AgentState } from "./client"
 
 export const terminalTool = (sandboxId: string) => createTool({
   name: "terminal",
@@ -41,7 +42,7 @@ export const createOrUpdateFilesTool = (sandboxId: string) => createTool({
       content: z.string().describe("The content to write to the file")
     })).describe("Array of files to create or update")
   }) as any,
-  handler: async ({ files }, { step, network }) => {
+  handler: async ({ files }, { step, network }: Tool.Options<AgentState>) => {
     const newFiles = await step?.run("createOrUpdateFiles", async () => {
       try {
         const sandbox = await getSandbox(sandboxId)
