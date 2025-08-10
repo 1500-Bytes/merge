@@ -2,7 +2,7 @@ import { config } from "@/lib/config";
 import { PROMPT } from "@/lib/constants";
 import { getSandbox, lastAssistantTextMessageContent } from "@/lib/utils";
 import { Sandbox } from "@e2b/code-interpreter";
-import { createAgent, createNetwork, gemini } from "@inngest/agent-kit";
+import { createAgent, createNetwork, gemini, openai } from "@inngest/agent-kit";
 import { type AgentState, inngest } from "./client";
 import { createOrUpdateFilesTool, readFilesTool, terminalTool } from "./tools";
 import { db, fragments, messages } from "@/db";
@@ -21,11 +21,11 @@ export const codeAgentFunction = inngest.createFunction(
       description: "An expert coding agent.",
       system: PROMPT,
       model: gemini({
-        model: "gemini-2.5-pro",
+        model: "gemini-2.5-flash",
         apiKey: config.env.GOOGLE_GENERATIVE_AI_API_KEY,
       }),
       // model: openai({
-      //   apiKey: config.env.GITHUB_OPEN_AI_API_KEY!,
+      //   apiKey: config.env.GITHUB_OPEN_AI_API_KEY,
       //   model: "gpt-4.1",
       //   baseUrl: "https://models.github.ai/inference",
       // }),
@@ -65,7 +65,7 @@ export const codeAgentFunction = inngest.createFunction(
       },
     });
 
-    const result = await network.run(event.data.value);
+    const result = await network.run(event.data.prompt);
 
     const isError =
       !result.state.data.summary ||
@@ -80,6 +80,7 @@ export const codeAgentFunction = inngest.createFunction(
     await step.run("save-result", async () => {
       if (isError) {
         return await db.insert(messages).values({
+          projectId: event.data.projectId,
           type: "ERROR",
           role: "ASSISTANT",
           content: "Something went wrong",
@@ -90,6 +91,7 @@ export const codeAgentFunction = inngest.createFunction(
       const [createdMessage] = await db
         .insert(messages)
         .values({
+          projectId: event.data.projectId,
           content: result.state.data.summary,
           role: "ASSISTANT",
           type: "RESULT",

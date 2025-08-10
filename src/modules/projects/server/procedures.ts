@@ -1,11 +1,12 @@
-import { db, fragments, messages } from "@/db";
+import { db, messages, projects } from "@/db";
 import { inngest } from "@/inngest/client";
 import { baseProcedure, createTRPCRouter } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
 import { asc, eq } from "drizzle-orm";
+import { generateSlug } from "random-word-slugs";
 import { z } from "zod";
 
-export const messagesRouter = createTRPCRouter({
+export const projectsRouter = createTRPCRouter({
   ///////////////////////////////////////
   ///////////////////////////////////////
   /////// create
@@ -15,24 +16,41 @@ export const messagesRouter = createTRPCRouter({
         prompt: z
           .string()
           .min(1, { message: "Prompt is required" })
-          .max(3000, { message: "Prompt too long" }),
-        projectId: z.string(),
+          .max(3000, "Prompt too long"),
       }),
     )
     .mutation(async ({ input }) => {
-      const { prompt, projectId } = input;
+      const { prompt } = input;
 
-      const [createdMssage] = await db
+      const [createdProject] = await db
+        .insert(projects)
+        .values({
+          name: generateSlug(2, { format: "kebab" }),
+        })
+        .returning({
+          id: projects.id,
+        });
+
+      if (!createdProject) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Project couldn't created",
+        });
+      }
+
+      const [createdMessage] = await db
         .insert(messages)
         .values({
-          projectId: projectId,
+          projectId: createdProject.id,
           content: prompt,
           role: "USER",
           type: "RESULT",
         })
-        .returning();
+        .returning({
+          id: messages.id,
+        });
 
-      if (!createdMssage) {
+      if (!createdMessage) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Message couldn't created",
@@ -43,22 +61,23 @@ export const messagesRouter = createTRPCRouter({
         name: "code-agent/run",
         data: {
           prompt: prompt,
+          projectId: createdProject.id,
         },
       });
 
-      return createdMssage;
+      return createdProject;
     }),
 
   ///////////////////////////////////////
   ///////////////////////////////////////
   /////// getMany
   getMany: baseProcedure.query(async () => {
-    const fetchedMessages = await db
+    const fetchedProjects = await db
       .select()
-      .from(messages)
-      .leftJoin(fragments, eq(fragments.messageId, messages.id))
-      .orderBy(asc(messages.updatedAt));
+      .from(projects)
+      .leftJoin(messages, eq(messages.projectId, projects.id))
+      .orderBy(asc(projects.updatedAt));
 
-    return fetchedMessages;
+    return fetchedProjects;
   }),
 });
