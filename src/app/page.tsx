@@ -36,7 +36,20 @@ export default function Home() {
       >
         {invoke.isPending ? "Loading..." : "Invoke function"}
       </Button>
-      <pre>{JSON.stringify(messages, null, 2)}</pre>
+      {isPending ? (
+        <p className="text-gray-500">Loading messages...</p>
+      ) : (
+        <ul className="mt-4">
+          {messages?.map((message) => (
+            <li key={message.messages.id} className="mb-2">
+              {message.messages.content} - <span className="text-gray-500">{message.messages.createdAt.toLocaleString()}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {invoke.isPending && <p className="text-gray-500">Creating event...</p>}
+      {invoke.isError && <p className="text-red-500">Error: {invoke.error.message}</p>}
+      {invoke.isSuccess && <p className="text-green-500">Event created successfully!</p>}
     </div>
   );
 }
