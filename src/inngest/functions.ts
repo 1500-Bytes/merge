@@ -1,11 +1,10 @@
-import { type AgentState, inngest } from "./client";
-import { anthropic, createAgent, createNetwork, createTool, gemini, openai } from "@inngest/agent-kit"
-import { Sandbox } from "@e2b/code-interpreter"
-import { getSandbox, lastAssistantTextMessageContent } from "@/lib/utils";
-import { z } from "zod";
-import { PROMPT } from "@/lib/constants";
-import { createOrUpdateFilesTool, readFilesTool, terminalTool } from "./tools";
 import { config } from "@/lib/config";
+import { PROMPT } from "@/lib/constants";
+import { getSandbox, lastAssistantTextMessageContent } from "@/lib/utils";
+import { Sandbox } from "@e2b/code-interpreter";
+import { createAgent, createNetwork, gemini } from "@inngest/agent-kit";
+import { type AgentState, inngest } from "./client";
+import { createOrUpdateFilesTool, readFilesTool, terminalTool } from "./tools";
 import { db, fragments, messages } from "@/db";
 
 export const codeAgentFunction = inngest.createFunction(
@@ -13,9 +12,9 @@ export const codeAgentFunction = inngest.createFunction(
   { event: "code-agent/run" },
   async ({ event, step }) => {
     const sandboxId = await step.run("get-sandbox-id", async () => {
-      const sandbox = await Sandbox.create("merge-1st-sandbox")
-      return sandbox.sandboxId
-    })
+      const sandbox = await Sandbox.create("merge-1st-sandbox");
+      return sandbox.sandboxId;
+    });
 
     const codeAgent = createAgent<AgentState>({
       name: "code-agent",
@@ -23,8 +22,7 @@ export const codeAgentFunction = inngest.createFunction(
       system: PROMPT,
       model: gemini({
         model: "gemini-2.5-pro",
-        apiKey: config.env.GOOGLE_GENERATIVE_AI_API_KEY
-
+        apiKey: config.env.GOOGLE_GENERATIVE_AI_API_KEY,
       }),
       // model: openai({
       //   apiKey: config.env.GITHUB_OPEN_AI_API_KEY!,
@@ -34,22 +32,22 @@ export const codeAgentFunction = inngest.createFunction(
       tools: [
         terminalTool(sandboxId),
         createOrUpdateFilesTool(sandboxId),
-        readFilesTool(sandboxId)
+        readFilesTool(sandboxId),
       ],
       lifecycle: {
         onResponse: async ({ result, network }) => {
-          const lastTextResponse = lastAssistantTextMessageContent(result)
+          const lastTextResponse = lastAssistantTextMessageContent(result);
 
           if (lastTextResponse && network) {
             if (lastTextResponse.includes("<task_summary>")) {
-              network.state.data.summary = lastTextResponse
+              network.state.data.summary = lastTextResponse;
             }
           }
 
-          return result
-        }
-      }
-    })
+          return result;
+        },
+      },
+    });
 
     const network = createNetwork({
       name: "coding-agent-network",
@@ -57,35 +55,48 @@ export const codeAgentFunction = inngest.createFunction(
       agents: [codeAgent],
       maxIter: 15,
       router: async ({ network }) => {
-        const summary = network.state.data.summary
+        const summary = network.state.data.summary;
 
         if (summary) {
-          return
+          return;
         }
 
-        return codeAgent
-      }
-    })
+        return codeAgent;
+      },
+    });
 
-    const result = await network.run(event.data.value)
+    const result = await network.run(event.data.value);
 
-    const isError = !result.state.data.summary ||
-      Object.keys(result.state.data.files || {}).length === 0
+    const isError =
+      !result.state.data.summary ||
+      Object.keys(result.state.data.files || {}).length === 0;
 
     const sandboxUrl = await step.run("get-sandbox-url", async () => {
-      const sandbox = await getSandbox(sandboxId)
-      const host = sandbox.getHost(3000)
-      return `https://${host}`
-    })
-
+      const sandbox = await getSandbox(sandboxId);
+      const host = sandbox.getHost(3000);
+      return `https://${host}`;
+    });
 
     await step.run("save-result", async () => {
+      if (isError) {
+        return await db.insert(messages).values({
+          type: "ERROR",
+          role: "ASSISTANT",
+          content: "Something went wrong",
+        });
+      }
+
       // Insert message first
-      const [createdMessage] = await db.insert(messages).values({
-        content: result.state.data.summary,
-        role: "ASSISTANT",
-        type: "RESULT",
-      }).returning();
+      const [createdMessage] = await db
+        .insert(messages)
+        .values({
+          content: result.state.data.summary,
+          role: "ASSISTANT",
+          type: "RESULT",
+        })
+        .returning({
+          id: messages.id,
+        });
 
       // Insert fragment with the message ID
       await db.insert(fragments).values({
@@ -101,6 +112,6 @@ export const codeAgentFunction = inngest.createFunction(
       title: "fragment",
       files: result.state.data.files,
       summary: result.state.data.summary,
-    }
-  }
+    };
+  },
 );
