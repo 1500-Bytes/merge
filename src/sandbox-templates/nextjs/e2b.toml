@@ -11,7 +11,7 @@
 # const sandbox = await Sandbox.create('merge-1st-sandbox')
 
 team_id = "02d2ca1a-8c4e-4285-b422-5cfc1a135fc8"
-start_cmd = "/compile_page.sh"
+start_cmd = "compile_page.sh"
 dockerfile = "e2b.Dockerfile"
 template_name = "merge-1st-sandbox"
 template_id = "mav13p50o4ubksjyhq8c"
