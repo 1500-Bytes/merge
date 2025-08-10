@@ -1,5 +1,6 @@
-import { relations, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { json, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { projects } from "./projects-schema";
 
 export const messageRoleEnum = pgEnum("message_role_enum", ["USER", "ASSISTANT"]);
 
@@ -10,7 +11,9 @@ export const messages = pgTable("messages", {
   content: text("content").notNull(),
   role: messageRoleEnum("role").notNull(),
   type: messageTypeEnum("type").notNull(),
-
+  projectId: uuid("project_id")
+    .references(() => projects.id, { onDelete: "cascade" })
+    .notNull(),
   createdAt: timestamp("created_at", {
     mode: "date",
     withTimezone: true,
@@ -50,19 +53,3 @@ export const fragments = pgTable("fragments", {
     .defaultNow()
     .$onUpdate(() => sql`now()`),
 });
-
-export const messageRelations = relations(messages, ({ one }) => ({
-  fragment: one(fragments, {
-    fields: [messages.id],
-    references: [fragments.messageId],
-    relationName: "message_fragment",
-  }),
-}));
-
-export const fragmentsRelations = relations(fragments, ({ one }) => ({
-  message: one(messages, {
-    fields: [fragments.messageId],
-    references: [messages.id],
-    relationName: "message_fragment",
-  }),
-}));
