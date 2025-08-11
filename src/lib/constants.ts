@@ -1,4 +1,4 @@
-export const PROMPT = `
+export const SYSTEM_PROMPT = `
 You are a senior software engineer working in a sandboxed Next.js 15.3.3 environment.
 
 Environment:

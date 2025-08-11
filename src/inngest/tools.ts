@@ -1,44 +1,44 @@
 import { getSandbox } from "@/lib/utils";
-import { createTool, Tool } from "@inngest/agent-kit";
+import { tool } from "ai";
 import { z } from "zod";
-import { type AgentState } from "./client";
 
 export const terminalTool = (sandboxId: string) =>
-  createTool({
-    name: "terminal",
+  tool({
     description: "Use the terminal to run commands",
-    parameters: z.object({
+    inputSchema: z.object({
       command: z.string().describe("The command to execute in the terminal"),
-    }) as any,
-    handler: async ({ command }, { step }) => {
-      return await step?.run("terminal", async () => {
-        const buffers = { stdout: "", stderr: "" };
-        try {
-          const sandbox = await getSandbox(sandboxId);
-          const result = await sandbox.commands.run(command, {
-            onStdout: (data: string) => {
-              buffers.stdout += data;
-            },
-            onStderr: (data: string) => {
-              buffers.stderr += data;
-            },
-          });
-          return result.stdout;
-        } catch (error) {
-          console.error(
-            `Command failed: ${error} \nstdout: ${buffers.stdout}\nstderror: ${buffers.stderr}`,
-          );
-          return `Command failed: ${error} \nstdout: ${buffers.stdout}\nstderror: ${buffers.stderr}`;
-        }
-      });
+    }),
+    execute: async ({ command }) => {
+      const buffers = { stdout: "", stderr: "" };
+      try {
+        const sandbox = await getSandbox(sandboxId);
+        const result = await sandbox.commands.run(command, {
+          onStdout: (data: string) => {
+            buffers.stdout += data;
+          },
+          onStderr: (data: string) => {
+            buffers.stderr += data;
+          },
+        });
+        return {
+          success: true,
+          output: result.stdout,
+        };
+      } catch (error) {
+        const errorMessage = `Command failed: ${error} \nstdout: ${buffers.stdout}\nstderr: ${buffers.stderr}`;
+        console.error(errorMessage);
+        return {
+          success: false,
+          error: errorMessage,
+        };
+      }
     },
   });
 
 export const createOrUpdateFilesTool = (sandboxId: string) =>
-  createTool({
-    name: "createOrUpdateFiles",
+  tool({
     description: "Create or update files in the sandbox",
-    parameters: z.object({
+    inputSchema: z.object({
       files: z
         .array(
           z.object({
@@ -47,50 +47,65 @@ export const createOrUpdateFilesTool = (sandboxId: string) =>
           }),
         )
         .describe("Array of files to create or update"),
-    }) as any,
-    handler: async ({ files }, { step, network }: Tool.Options<AgentState>) => {
-      const newFiles = await step?.run("createOrUpdateFiles", async () => {
-        try {
-          const sandbox = await getSandbox(sandboxId);
-          const updatedFiles = network.state.data.files || {};
-          for (const file of files) {
-            await sandbox.files.write(file.path, file.content);
-            updatedFiles[file.path] = file.content;
-          }
+    }),
+    execute: async ({ files }) => {
+      try {
+        const sandbox = await getSandbox(sandboxId);
+        const updatedFiles: Record<string, string> = {};
 
-          return updatedFiles;
-        } catch (error) {
-          return `Error creating or updating files: ${error}`;
+        for (const file of files) {
+          await sandbox.files.write(file.path, file.content);
+          updatedFiles[file.path] = file.content;
         }
-      });
 
-      if (typeof newFiles === "object") {
-        network.state.data.files = newFiles;
+        return {
+          success: true,
+          message: `Successfully created/updated ${files.length} file(s)`,
+          files: updatedFiles,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          error: `Error creating or updating files: ${error}`,
+        };
       }
     },
   });
 
 export const readFilesTool = (sandboxId: string) =>
-  createTool({
-    name: "readFiles",
+  tool({
     description: "Read files from sandbox",
-    parameters: z.object({
+    inputSchema: z.object({
       files: z.array(z.string()).describe("Array of file paths to read"),
-    }) as any,
-    handler: async ({ files }, { step }) => {
-      return step?.run("readFiles", async () => {
-        try {
-          const sandbox = await getSandbox(sandboxId);
-          const contents = [];
-          for (const file of files) {
-            const content = await sandbox.files.read(file);
-            contents.push({ path: file, content });
-          }
+    }),
+    execute: async ({ files }) => {
+      try {
+        const sandbox = await getSandbox(sandboxId);
+        const contents = [];
 
-          return JSON.stringify(contents);
-        } catch (error) {
-          return `Error reading files: ${error}`;
+        for (const file of files) {
+          try {
+            const content = await sandbox.files.read(file);
+            contents.push({ path: file, content, success: true });
+          } catch (fileError) {
+            contents.push({
+              path: file,
+              content: null,
+              success: false,
+              error: `Failed to read ${file}: ${fileError}`,
+            });
+          }
         }
-      });
+
+        return {
+          success: true,
+          files: contents,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          error: `Error reading files during step execution: ${error}`,
+        };
+      }
     },
   });
