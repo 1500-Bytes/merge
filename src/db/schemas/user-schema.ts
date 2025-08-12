@@ -3,7 +3,7 @@ import { timestamp } from "drizzle-orm/pg-core";
 import { serial } from "drizzle-orm/pg-core";
 import { pgTable } from "drizzle-orm/pg-core";
 
-export const users = pgTable("users", {
+export const users = pgTable("user", {
   id: serial("id").primaryKey(),
   email: text("email").notNull().unique(),
   name: text("name").notNull(),

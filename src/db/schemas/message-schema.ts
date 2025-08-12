@@ -6,7 +6,7 @@ export const messageRoleEnum = pgEnum("message_role_enum", ["USER", "ASSISTANT"]
 
 export const messageTypeEnum = pgEnum("message_type_enum", ["RESULT", "ERROR"]);
 
-export const messages = pgTable("messages", {
+export const messages = pgTable("message", {
   id: uuid("id").primaryKey().defaultRandom(),
   content: text("content").notNull(),
   role: messageRoleEnum("role").notNull(),
@@ -29,7 +29,7 @@ export const messages = pgTable("messages", {
     .$onUpdate(() => sql`now()`),
 });
 
-export const fragments = pgTable("fragments", {
+export const fragments = pgTable("fragment", {
   id: uuid("id").primaryKey().defaultRandom(),
   messageId: uuid("message_id")
     .notNull()
