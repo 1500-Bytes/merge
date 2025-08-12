@@ -42,6 +42,7 @@ export const messagesRouter = createTRPCRouter({
       await inngest.send({
         name: "code-agent/run",
         data: {
+          projectId: projectId,
           prompt: prompt,
         },
       });
@@ -52,13 +53,29 @@ export const messagesRouter = createTRPCRouter({
   ///////////////////////////////////////
   ///////////////////////////////////////
   /////// getMany
-  getMany: baseProcedure.query(async () => {
-    const fetchedMessages = await db
-      .select()
-      .from(messages)
-      .leftJoin(fragments, eq(fragments.messageId, messages.id))
-      .orderBy(asc(messages.updatedAt));
+  getMany: baseProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const { projectId } = input;
 
-    return fetchedMessages;
-  }),
+      const fetchedMessages = await db
+        .select()
+        .from(messages)
+        .where(eq(messages.projectId, projectId))
+        .leftJoin(fragments, eq(fragments.messageId, messages.id))
+        .orderBy(asc(messages.createdAt));
+
+      if (!fetchedMessages) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Messages not found",
+        });
+      }
+
+      return fetchedMessages;
+    }),
 });
