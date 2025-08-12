@@ -19,6 +19,7 @@ function Page() {
         router.push(`/projects/${data.id}`);
       },
       onError: (error) => {
+        console.error(error);
         toast.error(`Failed to create project: ${error.message}`);
       },
     }),
