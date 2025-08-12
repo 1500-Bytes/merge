@@ -9,6 +9,33 @@ import { z } from "zod";
 export const projectsRouter = createTRPCRouter({
   ///////////////////////////////////////
   ///////////////////////////////////////
+  /////// getOne
+  getOne: baseProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const { projectId } = input;
+
+      const fetchedProject = await db
+        .select()
+        .from(projects)
+        .where(eq(projects.id, projectId));
+
+      if (!fetchedProject) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+
+      return fetchedProject;
+    }),
+
+  ///////////////////////////////////////
+  ///////////////////////////////////////
   /////// create
   create: baseProcedure
     .input(
@@ -21,7 +48,6 @@ export const projectsRouter = createTRPCRouter({
     )
     .mutation(async ({ input }) => {
       const { prompt } = input;
-
       const [createdProject] = await db
         .insert(projects)
         .values({
@@ -30,6 +56,7 @@ export const projectsRouter = createTRPCRouter({
         .returning({
           id: projects.id,
         });
+      console.log({ prompt });
 
       if (!createdProject) {
         throw new TRPCError({
