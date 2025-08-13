@@ -19,7 +19,7 @@ export const projectsRouter = createTRPCRouter({
     .query(async ({ input }) => {
       const { projectId } = input;
 
-      const fetchedProject = await db
+      const [fetchedProject] = await db
         .select()
         .from(projects)
         .where(eq(projects.id, projectId));
