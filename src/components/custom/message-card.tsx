@@ -1,16 +1,11 @@
 import { fragments } from "@/db";
 import { messageRoleEnum, messageTypeEnum } from "@/db/schemas/message-schema";
-import { Card, CardContent } from "../ui/card";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 import { format } from "date-fns";
+import { ChevronRightIcon, Code2Icon } from "lucide-react";
+import Image from "next/image";
 import { Button } from "../ui/button";
-import {
-  ChevronLeftCircleIcon,
-  ChevronRightIcon,
-  ChevronsRightIcon,
-  Code2Icon,
-} from "lucide-react";
+import { Card } from "../ui/card";
 
 type MessageCardProps = {
   content: string;
@@ -109,9 +104,9 @@ function Fragment({
       onClick={() => onFragmentClick(fragment)}
       variant={"outline"}
       className={cn(
-        "flex py-8 h-15 w-fit shadow-2xs bg-secondary/50",
+        "flex py-8 h-15 w-fit shadow-2xs bg-secondary/20",
         isActiveFragment &&
-          "bg-secondary text-secondary-foreground hover:bg-secondary/10",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/50",
       )}
     >
       <Code2Icon className="has-[>svg]:size-5 text-muted-foreground" />
