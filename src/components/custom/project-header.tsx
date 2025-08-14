@@ -1,6 +1,18 @@
 import { useTRPC } from "@/trpc/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ComputerIcon,
+  MoonIcon,
+  SunIcon,
+  SunMoonIcon,
+} from "lucide-react";
+import { useTheme } from "next-themes";
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "../ui/button";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -13,20 +25,6 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { Button } from "../ui/button";
-import { Skeleton } from "../ui/skeleton";
-import Link from "next/link";
-import {
-  ChevronDownIcon,
-  ChevronLeftIcon,
-  ComputerIcon,
-  LayoutDashboardIcon,
-  MoonIcon,
-  SunIcon,
-  SunMoonIcon,
-} from "lucide-react";
-import Image from "next/image";
-import { useTheme } from "next-themes";
 
 type ProjectHeaderProps = {
   projectId: string;
@@ -57,7 +55,7 @@ export const ProjectHeader = ({ projectId }: ProjectHeaderProps) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent side="bottom" align="start" className="w-56">
           <DropdownMenuItem asChild>
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/projects" className="flex items-center gap-2">
               <ChevronLeftIcon className="size-4 text-muted-foreground" />
               <span>Go to Dashboard</span>
             </Link>
