@@ -68,7 +68,7 @@ export function MessagesContainer({
               />
             ))}
           </div>
-          {/*{isLastMessageUser && <MessageLoading />}*/}
+          {isLastMessageUser && <MessageLoading />}
           <div ref={bottomRef} />
         </ScrollArea>
       </div>
