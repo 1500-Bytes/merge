@@ -5,6 +5,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "../ui/resi
 import { MessagesContainer } from "../custom/messages-container";
 import { fragments } from "@/db";
 import { ProjectHeader } from "../custom/project-header";
+import { FragmentPreview } from "../custom/fragment-preview";
 
 type ProjectViewProps = {
   projectId: string;
@@ -34,10 +35,13 @@ export function ProjectView({ projectId }: ProjectViewProps) {
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={65} minSize={50} className="flex flex-col">
-          <div className="flex-1 p-4 flex items-center justify-center text-muted-foreground">
-            Fragment content will appear here
-          </div>
+        <ResizablePanel defaultSize={65} minSize={50}>
+          {!activeFragment && (
+            <p className="text-center content-center text-muted-foreground">
+              No fragment selected
+            </p>
+          )}
+          {activeFragment && <FragmentPreview activeFragment={activeFragment} />}
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>
