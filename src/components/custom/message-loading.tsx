@@ -35,7 +35,7 @@ function ShimmerMessages() {
 
 export function MessageLoading() {
   return (
-    <div className="flex flex-col group pb-4">
+    <div className="flex flex-col group py-4">
       <div className="flex items-center gap-2 pl-2 mb-2">
         <Image src={"/logo.svg"} alt="logo" width={18} height={18} />
         <span className="text-sm font-medium">Groove</span>
