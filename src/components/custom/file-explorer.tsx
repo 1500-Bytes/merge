@@ -1,19 +1,20 @@
 import { Fragment, useCallback, useMemo, useState } from "react";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "../ui/resizable";
 import { Button } from "../ui/button";
-import { CopyIcon } from "lucide-react";
+import { CopyCheckIcon, CopyIcon } from "lucide-react";
 import { CodePreview } from "./code-preview";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
-import { TreeView } from "./tree-view";
-import { convertFilesToTreeItems } from "@/lib/utils";
 import {
   Breadcrumb,
-  BreadcrumbEllipsis,
-  BreadcrumbItem,
   BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
   BreadcrumbPage,
   BreadcrumbSeparator,
+  BreadcrumbEllipsis,
 } from "../ui/breadcrumb";
+import { TreeView } from "./tree-view";
+import { convertFilesToTreeItems } from "@/lib/utils";
 import { TooltipWrapper } from "./tooltip-wrapper";
 
 type FileCollection = { [path: string]: string };
@@ -33,17 +34,17 @@ function FileBreadcrumb({ filePath }: FileBreadcrumbsProps) {
 
   const renderBreadcrumbs = () => {
     if (fileSegments.length <= maxSegments) {
-      fileSegments.map((segment, index) => {
-        const isLastSegment = fileSegments.length - 1;
+      return fileSegments.map((segment, index) => {
+        const isLastSegment = index === fileSegments.length - 1;
         return (
           <Fragment key={index}>
             <BreadcrumbItem>
               {isLastSegment ? (
-                <BreadcrumbPage>{segment}</BreadcrumbPage>
+                <BreadcrumbPage className="font-medium">{segment}</BreadcrumbPage>
               ) : (
-                <BreadcrumbPage>
-                  <span className="text-muted-foreground">{segment}</span>
-                </BreadcrumbPage>
+                <BreadcrumbLink className="text-muted-foreground cursor-default">
+                  {segment}
+                </BreadcrumbLink>
               )}
             </BreadcrumbItem>
             {!isLastSegment && <BreadcrumbSeparator />}
@@ -52,11 +53,15 @@ function FileBreadcrumb({ filePath }: FileBreadcrumbsProps) {
       });
     } else {
       const firstSegment = fileSegments[0];
-      const lastSegment = fileSegments.length - 1;
+      const lastSegment = fileSegments[fileSegments.length - 1];
 
       return (
-        <BreadcrumbItem>
-          <span className="text-muted-foreground">{firstSegment}</span>
+        <>
+          <BreadcrumbItem>
+            <BreadcrumbLink className="text-muted-foreground cursor-default">
+              {firstSegment}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbEllipsis />
@@ -65,7 +70,7 @@ function FileBreadcrumb({ filePath }: FileBreadcrumbsProps) {
           <BreadcrumbItem>
             <BreadcrumbPage className="font-medium">{lastSegment}</BreadcrumbPage>
           </BreadcrumbItem>
-        </BreadcrumbItem>
+        </>
       );
     }
   };
@@ -82,16 +87,11 @@ type FileExplorerProps = {
 };
 
 export function FileExplorer({ files }: FileExplorerProps) {
+  const [copied, setCopied] = useState(false);
+  const fileKeys = Object.keys(files);
   const [selectedFile, setSelectedFile] = useState<string | null>(() => {
-    const fileKeys = Object.keys(files);
     return fileKeys.length > 0 ? fileKeys[0] : null;
   });
-
-  const handleCopy = () => {
-    if (selectedFile && files[selectedFile]) {
-      navigator.clipboard.writeText(files[selectedFile]);
-    }
-  };
 
   const treeData = useMemo(() => {
     return convertFilesToTreeItems(files);
@@ -100,12 +100,21 @@ export function FileExplorer({ files }: FileExplorerProps) {
   const handleFileSelect = useCallback(
     (filePath: string) => {
       if (files[filePath]) {
-        console.log("Selected file:", filePath);
         setSelectedFile(filePath);
       }
     },
     [files],
   );
+
+  const handleCopy = useCallback(() => {
+    if (selectedFile) {
+      window.navigator.clipboard.writeText(files[selectedFile]);
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+      }, 1000);
+    }
+  }, [selectedFile, files]);
 
   return (
     <ResizablePanelGroup direction="horizontal" className="">
@@ -119,8 +128,13 @@ export function FileExplorer({ files }: FileExplorerProps) {
             <div className="flex items-center justify-between border-b px-4 py-2 bg-sidebar">
               <FileBreadcrumb filePath={selectedFile} />
               <TooltipWrapper title="Copy to clipboard">
-                <Button size={"sm"} variant={"outline"} onClick={handleCopy}>
-                  <CopyIcon />
+                <Button
+                  size={"sm"}
+                  variant={"outline"}
+                  disabled={copied}
+                  onClick={handleCopy}
+                >
+                  {copied ? <CopyCheckIcon /> : <CopyIcon />}
                 </Button>
               </TooltipWrapper>
             </div>
