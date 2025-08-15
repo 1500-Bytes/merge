@@ -33,15 +33,15 @@ export function MessagesContainer({
     ),
   );
 
-  useEffect(() => {
-    const lastAssistantMessageWithFragment = data.findLast(
-      (entry) => entry.message.role === "ASSISTANT",
-    );
+  // useEffect(() => {
+  //   const lastAssistantMessageWithFragment = data.findLast(
+  //     (entry) => entry.message.role === "ASSISTANT",
+  //   );
 
-    if (lastAssistantMessageWithFragment) {
-      setActiveFragment(lastAssistantMessageWithFragment.fragment);
-    }
-  }, [data, setActiveFragment]);
+  //   if (lastAssistantMessageWithFragment) {
+  //     setActiveFragment(lastAssistantMessageWithFragment.fragment);
+  //   }
+  // }, [data, setActiveFragment]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView();

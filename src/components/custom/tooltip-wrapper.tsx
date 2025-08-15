@@ -4,11 +4,16 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/
 type TooltipWrapperProps = {
   children: ReactNode;
   title: string;
-  side: "top" | "bottom" | "left" | "right";
-  align: "start" | "center" | "end";
+  side?: "top" | "bottom" | "left" | "right";
+  align?: "start" | "center" | "end";
 };
 
-export function TooltipWrapper({ children, title, side, align }: TooltipWrapperProps) {
+export function TooltipWrapper({
+  children,
+  title,
+  side = "bottom",
+  align = "center",
+}: TooltipWrapperProps) {
   return (
     <TooltipProvider>
       <Tooltip>
