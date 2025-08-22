@@ -1,4 +1,11 @@
-import { Anthropic, OpenAI, Gemini, DeepSeek } from "@lobehub/icons";
+import { Anthropic, DeepSeek, Gemini, OpenAI } from "@lobehub/icons";
+import {
+  BookOpenIcon,
+  LayoutDashboardIcon,
+  PenSquareIcon,
+  ShoppingCartIcon,
+  UserIcon,
+} from "lucide-react";
 import { AIModel } from "./types";
 
 export const PROMPT = `
@@ -250,5 +257,37 @@ export const AI_MODELS: AIModel[] = [
     isDisabled: true,
     capabilities: ["reasoning", "pdf", "web-search"],
     category: "others",
+  },
+];
+export const suggestions = [
+  {
+    Icon: <PenSquareIcon className="text-blue-500" />,
+    title: "Create a blog page",
+    prompt:
+      "Generate a fully functional and responsive blog page template. Include sections for recent posts, popular categories, an author profile, and a comment system. Focus on modern design principles and user engagement features.",
+  },
+  {
+    Icon: <ShoppingCartIcon className="text-green-500" />,
+    title: "Design an e-commerce cart",
+    prompt:
+      "Design a comprehensive e-commerce shopping cart experience. This should include features like product listing, quantity adjustment, secure checkout flow, estimated shipping costs, and options to save items for later. Ensure a smooth user experience and clear call-to-actions.",
+  },
+  {
+    Icon: <LayoutDashboardIcon className="text-purple-500" />,
+    title: "Develop a minimal admin dashboard",
+    prompt:
+      "Develop a clean and intuitive minimal admin dashboard for content management. Provide a clear overview of key metrics, a list of recent activities, and navigation for managing users, posts, and settings. Prioritize ease of use and efficient data presentation.",
+  },
+  {
+    Icon: <BookOpenIcon className="text-orange-500" />, // Using PenSquareIcon, as no other icons were explicitly requested in the prompt
+    title: "Build a landing page",
+    prompt:
+      "Design and develop a high-converting landing page for a SaaS product. Include sections for hero, features, testimonials, pricing, and a call-to-action. Emphasize clean design, responsiveness, and clear messaging to drive user sign-ups.",
+  },
+  {
+    Icon: <UserIcon className="text-pink-500" />, // Using LayoutDashboardIcon, as no other icons were explicitly requested in the prompt
+    title: "Create a personal portfolio",
+    prompt:
+      "Develop a modern and responsive personal portfolio website. Showcase projects with descriptions and links, include an 'About Me' section, a contact form, and integrate social media links. Focus on a visually appealing and easy-to-navigate layout.",
   },
 ];
