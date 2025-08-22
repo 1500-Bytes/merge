@@ -1,44 +1,26 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useTRPC } from "@/trpc/client";
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { ProjectForm } from "@/components/custom/project-form";
+import { Highlighter } from "@/components/magicui/highlighter";
 
 function Page() {
-  const [prompt, setPrompt] = useState("");
-  const router = useRouter();
-  const trpc = useTRPC();
-  const { mutate: createProject, isPending } = useMutation(
-    trpc.projects.create.mutationOptions({
-      onSuccess: (data) => {
-        toast.success("Project created successfully");
-        router.push(`/projects/${data.id}`);
-      },
-      onError: (error) => {
-        console.error(error);
-        toast.error(`Failed to create project: ${error.message}`);
-      },
-    }),
-  );
-
   return (
-    <div className="max-w-7xl p-7">
-      <Input value={prompt} onChange={(e) => setPrompt(e.target.value)} />
-      <Button
-        size={"lg"}
-        disabled={isPending}
-        onClick={() =>
-          createProject({
-            prompt: prompt,
-          })
-        }
-      >
-        {isPending ? "Loading..." : "Create Project"}
-      </Button>
+    <div className="min-h-screen p-7">
+      {/*input area*/}
+      <div className="mt-50">
+        <div className="flex flex-col gap-y-4 w-full">
+          <div className="flex gap-y-6 flex-col max-w-3xl min-w-3xl mx-auto items-center">
+            <h1 className="scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance">
+              What can I help you{" "}
+              <Highlighter color="#FF1616" action="highlight">
+                Build?
+              </Highlighter>
+            </h1>
+            <ProjectForm />
+          </div>
+        </div>
+      </div>
+      {/*favourite projects*/}
     </div>
   );
 }
