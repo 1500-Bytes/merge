@@ -7,7 +7,7 @@ import { Dispatch, SetStateAction, useEffect, useRef } from "react";
 import { ScrollArea } from "../ui/scroll-area";
 import { MessageCard } from "./message-card";
 import { MessageForm } from "./message-form";
-import { MessageLoading } from "./message-loading";
+import { AIContentLoading } from "./ai-content-loading";
 
 type MessagesContainerProps = {
   projectId: string;
@@ -20,6 +20,7 @@ export function MessagesContainer({
   activeFragment,
   setActiveFragment,
 }: MessagesContainerProps) {
+  const lastAssistantMessageRef = useRef<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const trpc = useTRPC();
   const { data } = useSuspenseQuery(
@@ -33,15 +34,19 @@ export function MessagesContainer({
     ),
   );
 
-  // useEffect(() => {
-  //   const lastAssistantMessageWithFragment = data.findLast(
-  //     (entry) => entry.message.role === "ASSISTANT",
-  //   );
+  useEffect(() => {
+    const lastAssistantMessage = data.findLast(
+      (entry) => entry.message.role === "ASSISTANT",
+    );
 
-  //   if (lastAssistantMessageWithFragment) {
-  //     setActiveFragment(lastAssistantMessageWithFragment.fragment);
-  //   }
-  // }, [data, setActiveFragment]);
+    if (
+      lastAssistantMessage?.fragment &&
+      lastAssistantMessageRef.current !== lastAssistantMessage.message.id
+    ) {
+      setActiveFragment(lastAssistantMessage.fragment);
+      lastAssistantMessageRef.current = lastAssistantMessage.message.id;
+    }
+  }, [data, setActiveFragment]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView();
@@ -68,7 +73,7 @@ export function MessagesContainer({
               />
             ))}
           </div>
-          {isLastMessageUser && <MessageLoading />}
+          {isLastMessageUser && <AIContentLoading />}
           <div ref={bottomRef} />
         </ScrollArea>
       </div>
