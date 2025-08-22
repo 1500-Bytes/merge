@@ -1,4 +1,4 @@
-import { ProjectView } from "@/components/views/project-view";
+import { ProjectView } from "@/components/views/project/project-view";
 import { getQueryClient, trpc } from "@/trpc/server";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Suspense } from "react";
