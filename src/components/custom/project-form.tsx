@@ -1,9 +1,14 @@
 "use client";
-import { AI_MODELS } from "@/lib/constants";
+import { AI_MODELS, suggestions } from "@/lib/constants";
 import { useTRPC } from "@/trpc/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { GlobeIcon } from "lucide-react";
+import {
+  GlobeIcon,
+  LayoutDashboardIcon,
+  PenSquareIcon,
+  ShoppingCartIcon,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -29,12 +34,6 @@ const formSchema = z.object({
   webSearch: z.boolean(),
 });
 
-const suggestions = [
-  "Create a blog page",
-  "Design an e-commerce cart for me",
-  "Develop a minimal admin dashboard",
-];
-
 export function ProjectForm() {
   const router = useRouter();
   const trpc = useTRPC();
@@ -51,6 +50,14 @@ export function ProjectForm() {
       },
     }),
   );
+
+  const handleSuggestionClick = (prompt: string) => {
+    form.setValue("prompt", prompt, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+  };
 
   const form = useForm<z.Infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -69,7 +76,7 @@ export function ProjectForm() {
 
   const isDisabled = isPending || !form.formState.isValid;
   return (
-    <>
+    <div className="flex flex-col items-center max-w-4xl gap-y-4">
       <Form {...form}>
         <PromptInput
           onSubmit={form.handleSubmit(onSubmit)}
@@ -133,13 +140,24 @@ export function ProjectForm() {
           </PromptInputToolbar>
         </PromptInput>
       </Form>
-      <div className="mx-auto -mt-2.5">
-        <Suggestions>
-          {suggestions.map((suggestion) => (
-            <Suggestion className=" text-xs" key={suggestion} suggestion={suggestion} />
-          ))}
+      <div className="mx-auto">
+        <Suggestions className="flex flex-wrap gap-2 items-center justify-center w-full ">
+          {suggestions.map((suggestion) => {
+            const Icon = suggestion.Icon;
+            return (
+              <Suggestion
+                onClick={handleSuggestionClick}
+                className="text-xs"
+                key={suggestion.title}
+                suggestion={suggestion.prompt}
+              >
+                {Icon}
+                <span>{suggestion.title}</span>
+              </Suggestion>
+            );
+          })}
         </Suggestions>
       </div>
-    </>
+    </div>
   );
 }
