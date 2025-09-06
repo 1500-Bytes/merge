@@ -1,6 +1,14 @@
 "use client";
 
-import { Loader2Icon, SendIcon, SquareIcon, XIcon } from "lucide-react";
+import {
+  ArrowBigUpIcon,
+  Loader2Icon,
+  RotateCwIcon,
+  SendHorizonalIcon,
+  SendIcon,
+  SquareIcon,
+  XIcon,
+} from "lucide-react";
 import type { ComponentProps, HTMLAttributes, KeyboardEventHandler } from "react";
 import { Children } from "react";
 import { Button } from "@/components/ui/button";
@@ -28,7 +36,7 @@ export const PromptInput = ({ className, ...props }: PromptInputProps) => (
 );
 
 export type PromptInputTextareaProps = ComponentProps<typeof Textarea> & {
-  minHeight: "20" | "24" | "28" | "32" | "36";
+  minHeight?: "20" | "24" | "28" | "32" | "36";
   maxHeight?: string;
 };
 
@@ -36,8 +44,8 @@ export const PromptInputTextarea = ({
   onChange,
   className,
   placeholder = "What would you like to know?",
-  minHeight,
-  maxHeight = 168,
+  minHeight = "20",
+  maxHeight = "168",
   ...props
 }: PromptInputTextareaProps) => {
   const handleKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
@@ -62,6 +70,7 @@ export const PromptInputTextarea = ({
         "w-full resize-none rounded-none border-none p-3 shadow-none outline-none ring-0",
         "bg-transparent dark:bg-transparent field-sizing-content ",
         "focus-visible:ring-0",
+        minHeight === "20" && "min-h-20",
         minHeight === "24" && `min-h-24`,
         minHeight === "28" && `min-h-28`,
         minHeight === "32" && `min-h-32`,
@@ -136,14 +145,14 @@ export const PromptInputSubmit = ({
   children,
   ...props
 }: PromptInputSubmitProps) => {
-  let Icon = <SendIcon className="size-4" />;
+  let Icon = <SendHorizonalIcon className="size-4" />;
 
   if (status === "submitted") {
-    Icon = <Loader2Icon className="size-4 animate-spin" />;
+    Icon = <SendHorizonalIcon className="size-4 " />;
   } else if (status === "streaming") {
-    Icon = <SquareIcon className="size-4" />;
+    Icon = <SquareIcon className="size-4 motion-preset-pulse-sm" />;
   } else if (status === "error") {
-    Icon = <XIcon className="size-4" />;
+    Icon = <RotateCwIcon className="size-4" />;
   }
 
   return (
