@@ -3,12 +3,7 @@ import { AI_MODELS, suggestions } from "@/lib/constants";
 import { useTRPC } from "@/trpc/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  GlobeIcon,
-  LayoutDashboardIcon,
-  PenSquareIcon,
-  ShoppingCartIcon,
-} from "lucide-react";
+import { GlobeIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -24,6 +19,9 @@ import {
 } from "../ai-elements/prompt-input";
 import { Suggestion, Suggestions } from "../ai-elements/suggestion";
 import { Form, FormControl, FormField, FormItem } from "../ui/form";
+import { useState } from "react";
+import { ChatStatus } from "ai";
+import { useProjectContext } from "@/context/projects-context";
 
 const formSchema = z.object({
   prompt: z
@@ -35,16 +33,23 @@ const formSchema = z.object({
 });
 
 export function ProjectForm() {
+  const { isGeneratingContent, selectedModal, setSelectedModal, setIsGeneratingContent } =
+    useProjectContext();
+  const [status, setStatus] = useState<ChatStatus | undefined>();
   const router = useRouter();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { mutateAsync: createProject, isPending } = useMutation(
     trpc.projects.create.mutationOptions({
       onSuccess: (data) => {
+        setIsGeneratingContent(true);
+        console.log({ "from project from": isGeneratingContent });
+        setStatus("submitted");
         queryClient.invalidateQueries(trpc.projects.getMany.queryOptions());
         router.push(`/projects/${data.id}`);
       },
       onError: (error) => {
+        setStatus("error");
         console.error(error);
         toast.error("Failed to create project");
       },
@@ -69,9 +74,11 @@ export function ProjectForm() {
   });
 
   const onSubmit = async (values: z.Infer<typeof formSchema>) => {
+    setSelectedModal(values.model);
     await createProject({
       prompt: values.prompt,
     });
+    setStatus("submitted");
   };
 
   const isDisabled = isPending || !form.formState.isValid;
@@ -134,6 +141,7 @@ export function ProjectForm() {
               />
             </PromptInputTools>
             <PromptInputSubmit
+              status={status}
               disabled={isDisabled}
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
             />
