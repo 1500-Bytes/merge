@@ -1,23 +1,22 @@
+import { useProjectContext } from "@/context/projects-context";
 import { useTRPC } from "@/trpc/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ChatStatus } from "ai";
 import { GlobeIcon } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
 import {
   PromptInput,
   PromptInputButton,
-  PromptInputModelSelect,
-  PromptInputModelSelectContent,
-  PromptInputModelSelectItem,
-  PromptInputModelSelectTrigger,
-  PromptInputModelSelectValue,
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputToolbar,
   PromptInputTools,
 } from "../ai-elements/prompt-input";
+import { Button } from "../ui/button";
 import { Form, FormControl, FormField, FormItem } from "../ui/form";
 
 const models = [
@@ -45,12 +44,18 @@ type MessageFormProps = {
 };
 
 export function MessageForm({ projectId }: MessageFormProps) {
+  const [status, setStatus] = useState<ChatStatus | undefined>();
+  const { setGenerationError, selectedModal, setIsGeneratingContent } =
+    useProjectContext();
+
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { mutateAsync: createMessage, isPending } = useMutation(
     trpc.messages.create.mutationOptions({
       onSuccess: () => {
+        setIsGeneratingContent(false);
         form.reset();
+        setStatus("submitted");
         queryClient.invalidateQueries(
           trpc.messages.getMany.queryOptions({
             projectId,
@@ -58,6 +63,9 @@ export function MessageForm({ projectId }: MessageFormProps) {
         );
       },
       onError: (error) => {
+        setIsGeneratingContent(false);
+        setGenerationError(error.message);
+        setStatus("error");
         console.error(error);
         toast.error("Failed to create message");
       },
@@ -74,6 +82,7 @@ export function MessageForm({ projectId }: MessageFormProps) {
   });
 
   const onSubmit = async (values: z.Infer<typeof formSchema>) => {
+    setIsGeneratingContent(true);
     await createMessage({
       projectId: projectId,
       prompt: values.prompt,
@@ -84,7 +93,10 @@ export function MessageForm({ projectId }: MessageFormProps) {
 
   return (
     <Form {...form}>
-      <PromptInput onSubmit={form.handleSubmit(onSubmit)} className="bg-muted">
+      <PromptInput
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="bg-card/50 border border-border rounded-lg shadow-sm p-2"
+      >
         <FormField
           disabled={isPending}
           control={form.control}
@@ -92,7 +104,7 @@ export function MessageForm({ projectId }: MessageFormProps) {
           render={({ field }) => (
             <FormItem className="border-none">
               <FormControl>
-                <PromptInputTextarea {...field} />
+                <PromptInputTextarea minHeight="24" {...field} />
               </FormControl>
             </FormItem>
           )}
@@ -110,6 +122,7 @@ export function MessageForm({ projectId }: MessageFormProps) {
                       disabled={true}
                       variant={field.value ? "default" : "ghost"}
                       onClick={() => field.onChange(!field.value)}
+                      className="text-foreground/70 hover:text-foreground"
                     >
                       <GlobeIcon size={16} />
                       <span>Search</span>
@@ -125,30 +138,19 @@ export function MessageForm({ projectId }: MessageFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <PromptInputModelSelect
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <PromptInputModelSelectTrigger>
-                        <PromptInputModelSelectValue />
-                      </PromptInputModelSelectTrigger>
-                      <PromptInputModelSelectContent>
-                        {models.map((model) => (
-                          <PromptInputModelSelectItem
-                            key={model.value}
-                            value={model.value}
-                          >
-                            {model.name}
-                          </PromptInputModelSelectItem>
-                        ))}
-                      </PromptInputModelSelectContent>
-                    </PromptInputModelSelect>
+                    <Button variant={"ghost"} disabled={true}>
+                      {selectedModal}
+                    </Button>
                   </FormControl>
                 </FormItem>
               )}
             />
           </PromptInputTools>
-          <PromptInputSubmit disabled={isDisabled} />
+          <PromptInputSubmit
+            status={status}
+            disabled={isDisabled}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground"
+          />
         </PromptInputToolbar>
       </PromptInput>
     </Form>
