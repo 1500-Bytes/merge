@@ -24,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Separator } from "../ui/separator";
+import { TooltipWrapper } from "../custom/tooltip-wrapper";
 
 const getCapabilityIcon = (capability: string) => {
   switch (capability) {
@@ -68,7 +69,7 @@ export function AIProviderSelector({
     try {
       const model = AI_MODELS.find((m) => m.value === modelValue);
       if (model && !model.isDisabled) {
-        console.log({ modelValue });
+        setModal(modelValue);
         onModelChange(modelValue);
         setDialogOpen(false);
         setDropdownOpen(false);
@@ -153,19 +154,6 @@ export function AIProviderSelector({
               />
             </div>
 
-            <div className="bg-primary/10 rounded-lg p-4 border border-primary">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold">Unlock all models + higher limits</h3>
-                  <div className="flex items-center gap-1 mt-1">
-                    <span className="text-xl font-bold">$8</span>
-                    <span className="text-muted-foreground">/month</span>
-                  </div>
-                </div>
-                <Button>Upgrade now</Button>
-              </div>
-            </div>
-
             <ScrollArea className="h-96">
               <div className="space-y-6">
                 {favoriteModels.length > 0 && (
@@ -175,38 +163,79 @@ export function AIProviderSelector({
                       <h3 className="font-medium">Favorites</h3>
                     </div>
                     <div className="grid grid-cols-4 gap-3">
-                      {favoriteModels.map((model) => (
-                        <Button
-                          key={model.value}
-                          variant="ghost"
-                          size={"lg"}
-                          className={cn(
-                            "h-28 p-3 flex flex-col items-center justify-between border",
-                            selectedModel === model.value &&
-                              "border-primary bg-primary/20",
-                            model.isDisabled && "opacity-50 cursor-not-allowed",
-                          )}
-                          onClick={() => handleModelSelect(model.value)}
-                          disabled={model.isDisabled}
-                        >
-                          <div className="flex flex-col items-center gap-3 flex-1">
-                            {model.icon}
-                            <div className="text-center">
-                              <div className="text-xs font-medium">{model.name}</div>
-                              <div className="text-xs text-muted-foreground">
-                                {model.version}
+                      {favoriteModels.map((model, index) => {
+                        if (model.isDisabled) {
+                          return (
+                            <TooltipWrapper key={index} title="Upgrade to unlock access">
+                              <Button
+                                key={model.value}
+                                variant="ghost"
+                                size={"lg"}
+                                className={cn(
+                                  "h-28 p-3 flex flex-col items-center justify-between border",
+                                  selectedModel === model.value &&
+                                    "border-primary bg-primary/20",
+                                  model.isDisabled && "opacity-50 cursor-not-allowed",
+                                )}
+                                onClick={() => handleModelSelect(model.value)}
+                                disabled={model.isDisabled}
+                              >
+                                <div className="flex flex-col items-center gap-3 flex-1">
+                                  {model.icon}
+                                  <div className="text-center">
+                                    <div className="text-xs font-medium">
+                                      {model.name}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                      {model.version}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="flex gap-1">
+                                  {model.capabilities.map((capability, index) => (
+                                    <div key={index} className="text-muted-foreground">
+                                      {getCapabilityIcon(capability)}
+                                    </div>
+                                  ))}
+                                </div>
+                              </Button>
+                            </TooltipWrapper>
+                          );
+
+                          return (
+                            <Button
+                              key={model.value}
+                              variant="ghost"
+                              size={"lg"}
+                              className={cn(
+                                "h-28 p-3 flex flex-col items-center justify-between border",
+                                selectedModel === model.value &&
+                                  "border-primary bg-primary/20",
+                                model.isDisabled && "opacity-50 cursor-not-allowed",
+                              )}
+                              onClick={() => handleModelSelect(model.value)}
+                              disabled={model.isDisabled}
+                            >
+                              <div className="flex flex-col items-center gap-3 flex-1">
+                                {model.icon}
+                                <div className="text-center">
+                                  <div className="text-xs font-medium">{model.name}</div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {model.version}
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          </div>
-                          <div className="flex gap-1">
-                            {model.capabilities.map((capability, index) => (
-                              <div key={index} className="text-muted-foreground">
-                                {getCapabilityIcon(capability)}
+                              <div className="flex gap-1">
+                                {model.capabilities.map((capability, index) => (
+                                  <div key={index} className="text-muted-foreground">
+                                    {getCapabilityIcon(capability)}
+                                  </div>
+                                ))}
                               </div>
-                            ))}
-                          </div>
-                        </Button>
-                      ))}
+                            </Button>
+                          );
+                        }
+                      })}
                     </div>
                   </div>
                 )}
