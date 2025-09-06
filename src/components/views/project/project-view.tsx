@@ -4,14 +4,19 @@ import { FileExplorer } from "@/components/custom/file-explorer";
 import { FragmentPreview } from "@/components/custom/fragment-preview";
 import { MessagesContainer } from "@/components/custom/messages-container";
 import { ProjectHeader } from "@/components/custom/project-header";
+import {
+  GeneratingContent,
+  GenerationError,
+} from "@/components/fallbacks/generating-fallback";
 import { Button } from "@/components/ui/button";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useProjectContext } from "@/context/projects-context";
 import { fragments } from "@/db";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { CodeIcon, CrownIcon, EyeIcon } from "lucide-react";
 import Link from "next/link";
 import { Suspense, useState } from "react";
@@ -21,15 +26,16 @@ type ProjectViewProps = {
 };
 
 export function ProjectView({ projectId }: ProjectViewProps) {
+  const { isGeneratingContent, isGenerationError } = useProjectContext();
   const [activeFragment, setActiveFragment] = useState<
     typeof fragments.$inferSelect | null
   >(null);
   const [activeTab, setActiveTab] = useState<"code" | "preview">("preview");
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-[calc(99.9svh-var(--header-height))]! flex flex-col">
       <ResizablePanelGroup direction="horizontal" className="flex-1">
-        <ResizablePanel defaultSize={35} minSize={20} className="flex flex-col">
+        <ResizablePanel defaultSize={25} minSize={20} className="flex flex-col">
           <Suspense fallback={<p>loading header...</p>}>
             <ProjectHeader projectId={projectId} />
           </Suspense>
@@ -44,51 +50,57 @@ export function ProjectView({ projectId }: ProjectViewProps) {
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={65} minSize={50}>
-          <Tabs
-            className="h-full gap-y-0"
-            defaultValue="preview"
-            value={activeTab}
-            onValueChange={(value) => setActiveTab(value as "preview" | "code")}
-          >
-            <div className="w-full flex items-center px-2 py-2.5 border-b">
-              <TabsList className="rounded-sm border py-3">
-                <TabsTrigger
-                  value="preview"
-                  className="flex gap-x-1.5 py-3 items-center rounded-sm"
-                >
-                  <EyeIcon />
-                  <span>Preview</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  className="flex gap-x-1.5 items-center py-3 rounded-sm"
-                  value="code"
-                >
-                  <CodeIcon />
-                  <span>Code</span>
-                </TabsTrigger>
-              </TabsList>
-              <div className="ml-auto">
-                <Button asChild size="sm">
-                  <Link href={`/pricing`}>
-                    <CrownIcon />
-                    <span>Upgrade</span>
-                  </Link>
-                </Button>
-              </div>
-            </div>
-            <TabsContent value="code" className="min-h-0 h-full">
-              <FileExplorer files={activeFragment?.files as { [path: string]: string }} />
-            </TabsContent>
-            <TabsContent value="preview" className="h-full">
-              {!activeFragment && (
-                <div className="flex items-center justify-center h-full">
-                  <p className=" text-muted-foreground ">No fragment selected</p>
+        <ResizablePanel defaultSize={75} minSize={50}>
+          {isGenerationError && <GenerationError />}
+          {isGeneratingContent && <GeneratingContent />}
+          {!isGeneratingContent && (
+            <Tabs
+              className="h-full gap-y-0"
+              defaultValue="preview"
+              value={activeTab}
+              onValueChange={(value) => setActiveTab(value as "preview" | "code")}
+            >
+              <div className="w-full flex items-center px-2 py-2.5 border-b">
+                <TabsList className="rounded-sm border py-3">
+                  <TabsTrigger
+                    value="preview"
+                    className="flex gap-x-1.5 py-3 items-center rounded-sm"
+                  >
+                    <EyeIcon />
+                    <span>Preview</span>
+                  </TabsTrigger>
+                  <TabsTrigger
+                    className="flex gap-x-1.5 items-center py-3 rounded-sm"
+                    value="code"
+                  >
+                    <CodeIcon />
+                    <span>Code</span>
+                  </TabsTrigger>
+                </TabsList>
+                <div className="ml-auto">
+                  <Button asChild size="sm">
+                    <Link href={`/pricing`}>
+                      <CrownIcon />
+                      <span>Upgrade</span>
+                    </Link>
+                  </Button>
                 </div>
-              )}
-              {activeFragment && <FragmentPreview activeFragment={activeFragment} />}
-            </TabsContent>
-          </Tabs>
+              </div>
+              <TabsContent value="code" className="min-h-0 h-full">
+                <FileExplorer
+                  files={activeFragment?.files as { [path: string]: string }}
+                />
+              </TabsContent>
+              <TabsContent value="preview" className="h-full">
+                {!activeFragment && (
+                  <div className="flex items-center justify-center h-full">
+                    <p className=" text-muted-foreground ">No fragment selected</p>
+                  </div>
+                )}
+                {activeFragment && <FragmentPreview activeFragment={activeFragment} />}
+              </TabsContent>
+            </Tabs>
+          )}
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>
