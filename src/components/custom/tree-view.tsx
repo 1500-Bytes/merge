@@ -83,7 +83,7 @@ function Tree({ parentPath, selectedValue, onSelect, item }: TreeProps) {
       <SidebarMenuButton
         isActive={isSelected}
         onClick={() => onSelect?.(currentPath)}
-        className="data-[active=true]:bg-sidebar-accent/90 data-[active=true]:font-semibold"
+        className="data-[active=true]:bg-sidebar-accent/90 data-[active=true]:font-semibold w-full"
       >
         <FileIcon />
         <span className="truncate">{name}</span>
@@ -94,7 +94,7 @@ function Tree({ parentPath, selectedValue, onSelect, item }: TreeProps) {
   return (
     <SidebarMenuItem>
       <Collapsible
-        className="group/collapsible [&[data-state=open]>button>svg:first-child]:rotate-90"
+        className="group/collapsible [&[data-state=open]>button>svg:first-child]:rotate-90 w-full"
         defaultOpen
       >
         <CollapsibleTrigger asChild>
@@ -105,7 +105,7 @@ function Tree({ parentPath, selectedValue, onSelect, item }: TreeProps) {
           </SidebarMenuButton>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <SidebarMenuSub>
+          <SidebarMenuSub className="w-full mx-0 ml-1.5">
             {items.map((subItem, index) => (
               <Tree
                 key={index}
