@@ -1,13 +1,15 @@
 "use client";
 
+import { useProjectContext } from "@/context/projects-context";
 import { fragments } from "@/db";
 import { useTRPC } from "@/trpc/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Dispatch, SetStateAction, useEffect, useRef } from "react";
+import ProgressiveBlur from "../magicui/progressive-blur";
 import { ScrollArea } from "../ui/scroll-area";
+import { AIContentLoading } from "./ai-content-loading";
 import { MessageCard } from "./message-card";
 import { MessageForm } from "./message-form";
-import { AIContentLoading } from "./ai-content-loading";
 
 type MessagesContainerProps = {
   projectId: string;
@@ -20,10 +22,11 @@ export function MessagesContainer({
   activeFragment,
   setActiveFragment,
 }: MessagesContainerProps) {
+  const { isGenerationError } = useProjectContext();
   const lastAssistantMessageRef = useRef<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const trpc = useTRPC();
-  const { data } = useSuspenseQuery(
+  const { data, isSuccess } = useSuspenseQuery(
     trpc.messages.getMany.queryOptions(
       {
         projectId: projectId,
@@ -53,12 +56,12 @@ export function MessagesContainer({
   }, [data.length]);
 
   const lastMessage = data[data.length - 1];
-  const isLastMessageUser = lastMessage.message.role === "USER";
+  const isLastMessageUser = lastMessage.message.role === "USER" && !isGenerationError;
 
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 min-h-0">
-        <ScrollArea className="h-full px-3">
+        <ScrollArea className="h-full px-3 relative">
           <div className="pb-5 pt-2">
             {data.map((entry) => (
               <MessageCard
@@ -73,12 +76,18 @@ export function MessagesContainer({
               />
             ))}
           </div>
+          {/*{isGenerationError && <GenerationMessageAssistant />}*/}
           {isLastMessageUser && <AIContentLoading />}
           <div ref={bottomRef} />
+          <ProgressiveBlur
+            className="absolute"
+            position="bottom"
+            blurLevels={[0.5, 1, 2, 4, 8, 16, 32, 64, 128]}
+            height="10%"
+          />
         </ScrollArea>
       </div>
-      <div className="relative px-3 py-2">
-        <div className="absolute -top-6 left-0 h-6 right-0 bg-gradient-to-b from-transparent to-background/70 pointer-events-none"></div>
+      <div className="relative px-2">
         <MessageForm projectId={projectId} />
       </div>
     </div>
