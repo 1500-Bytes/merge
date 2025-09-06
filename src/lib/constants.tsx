@@ -291,3 +291,16 @@ export const suggestions = [
       "Develop a modern and responsive personal portfolio website. Showcase projects with descriptions and links, include an 'About Me' section, a contact form, and integrate social media links. Focus on a visually appealing and easy-to-navigate layout.",
   },
 ];
+
+export const teams = [
+  {
+    name: "Team Alpha",
+    logo: UserIcon,
+    plan: "Pro",
+  },
+  {
+    name: "Team Beta",
+    logo: BookOpenIcon,
+    plan: "Basic",
+  },
+];
