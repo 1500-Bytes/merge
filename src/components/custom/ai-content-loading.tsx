@@ -27,7 +27,7 @@ export function AIContentLoading({
   }, [interval, texts.length]);
 
   return (
-    <div className="flex items-center justify-start py-8">
+    <div className="flex items-center justify-start py-5">
       <motion.div
         className="relative"
         initial={{ opacity: 0 }}
@@ -58,7 +58,7 @@ export function AIContentLoading({
               },
             }}
             className={cn(
-              "flex justify-start font-medium bg-gradient-to-r from-neutral-950 via-neutral-400 to-neutral-950 dark:from-white dark:via-neutral-600 dark:to-white bg-[length:200%_100%] bg-clip-text text-transparent whitespace-nowrap min-w-max py-4 pl-4",
+              "flex justify-start font-medium bg-gradient-to-r from-neutral-950 via-neutral-400 to-neutral-950 dark:from-white dark:via-neutral-600 dark:to-white bg-[length:200%_100%] text-sm bg-clip-text text-transparent whitespace-nowrap min-w-max py-4 pl-6",
               className,
             )}
           >
