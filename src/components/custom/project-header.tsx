@@ -40,7 +40,7 @@ export const ProjectHeader = ({ projectId }: ProjectHeaderProps) => {
   const { theme, setTheme } = useTheme();
 
   return (
-    <header className="p-3 flex justify-between items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="relative py-1 bg-sidebar flex justify-between items-center border-b  backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -87,6 +87,7 @@ export const ProjectHeader = ({ projectId }: ProjectHeaderProps) => {
           </DropdownMenuSub>
         </DropdownMenuContent>
       </DropdownMenu>
+      <div className="absolute top-11 left-0 h-20 right-0 bg-gradient-to-b from-transparent to-background/70 pointer-events-none"></div>
     </header>
   );
 };
