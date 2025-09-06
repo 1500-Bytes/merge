@@ -2,10 +2,12 @@ import { fragments } from "@/db";
 import { messageRoleEnum, messageTypeEnum } from "@/db/schemas/message-schema";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { ChevronRightIcon, Code2Icon } from "lucide-react";
+import { ChevronRightIcon, Code2Icon, MessageSquareWarningIcon } from "lucide-react";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
+import { useProjectContext } from "@/context/projects-context";
+import { useEffect } from "react";
 
 type MessageCardProps = {
   content: string;
@@ -44,14 +46,13 @@ export function MessageCard({
 
 function UserMessage({ content }: { content: string }) {
   return (
-    <div className="flex justify-end break-words pr-1 pt-2 pl-10">
+    <div className="flex justify-end break-words text-sm pr-1 pt-2 pl-10">
       <Card className="rounded-xl max-w-4/5 shadow-none border-none py-3 px-4 bg-muted">
         {content}
       </Card>
     </div>
   );
 }
-
 function AssistantMessage({
   content,
   createdAt,
@@ -60,11 +61,17 @@ function AssistantMessage({
   onFragmentClick,
   type,
 }: Omit<MessageCardProps, "role">) {
+  const { setIsGeneratingContent, isGenerationError } = useProjectContext();
+
+  useEffect(() => {
+    setIsGeneratingContent(false);
+  }, [setIsGeneratingContent]);
+
   return (
     <div
       className={cn(
-        "flex flex-col break-words pt-6 group pb-8",
-        type === "ERROR" && "text-red-800 dark:text-red-500",
+        "flex flex-col break-words pt-6 group pb-10",
+        type === "ERROR" && "text-red-500",
       )}
     >
       <div className="flex items-center justify-start">
@@ -76,14 +83,23 @@ function AssistantMessage({
           </span>
         </div>
       </div>
-      <div className="flex flex-col gap-y-5 max-w-11/12 shadow-none border-none py-3 pl-6">
-        {content}
-        {fragment && (
-          <Fragment
-            fragment={fragment}
-            isActiveFragment={isActiveFragment}
-            onFragmentClick={onFragmentClick}
-          />
+
+      <div className="flex flex-col text-sm dark:text-neutral-200  gap-y-5 max-w-11/12 shadow-none border-none py-3 pl-6">
+        {type === "ERROR" ? (
+          <div className="text-red-500 flex items-center gap-x-2">
+            <p className="text-sm">Something went wrong!</p>
+          </div>
+        ) : (
+          <>
+            {content}
+            {fragment && (
+              <Fragment
+                fragment={fragment}
+                isActiveFragment={isActiveFragment}
+                onFragmentClick={onFragmentClick}
+              />
+            )}
+          </>
         )}
       </div>
     </div>
