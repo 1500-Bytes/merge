@@ -2,13 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { SidebarHeader, useSidebar } from "@/components/ui/sidebar";
-import { teams } from "@/lib/constants";
+import { SidebarHeader } from "@/components/ui/sidebar";
 import Image from "next/image";
-import { TeamSwitcher } from "./team-switcher";
 import Link from "next/link";
-import { BreadcrumbSeparator } from "./ui/breadcrumb";
-import { SlashIcon } from "lucide-react";
 
 export function SiteHeader() {
   return (
@@ -22,10 +18,7 @@ export function SiteHeader() {
 
         <Separator orientation="vertical" className="mr-2 h-4" />
 
-        <SidebarHeader>
-          <TeamSwitcher teams={teams} />
-          {/*<NavMain items={placeholderUser} />*/}
-        </SidebarHeader>
+        <SidebarHeader>{/*<NavMain items={placeholderUser} />*/}</SidebarHeader>
 
         {/*<Breadcrumb className="hidden sm:block">
           <BreadcrumbList>
