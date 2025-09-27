@@ -1,9 +1,9 @@
+import { ThemeProvider } from "@/components/custom/theme-provider";
+import { TRPCReactProvider } from "@/trpc/client";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
-import { TRPCProvider, TRPCReactProvider } from "@/trpc/client";
 import { Toaster } from "sonner";
-import { ThemeProvider } from "@/components/custom/theme-provider";
+import "./globals.css";
 
 const inter = Inter({
   variable: "--font-inter",
