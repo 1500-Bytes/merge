@@ -49,7 +49,7 @@ type AIProviderSelectorProps = {
 export function AIProviderSelector({
   isDisabled,
   selectedModel,
-  onModelChange,
+  onModelChange: onModelChangeAction, // Renamed for Next.js diagnostics
 }: AIProviderSelectorProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -69,8 +69,8 @@ export function AIProviderSelector({
     try {
       const model = AI_MODELS.find((m) => m.value === modelValue);
       if (model && !model.isDisabled) {
-        setModal(modelValue);
-        onModelChange(modelValue);
+        // Removed setModal as it was undefined and onModelChangeAction handles the state update
+        onModelChangeAction(modelValue);
         setDialogOpen(false);
         setDropdownOpen(false);
       } else {
@@ -178,7 +178,7 @@ export function AIProviderSelector({
                                   model.isDisabled && "opacity-50 cursor-not-allowed",
                                 )}
                                 onClick={() => handleModelSelect(model.value)}
-                                disabled={model.isDisabled}
+                                disabled={false}
                               >
                                 <div className="flex flex-col items-center gap-3 flex-1">
                                   {model.icon}
@@ -201,7 +201,7 @@ export function AIProviderSelector({
                               </Button>
                             </TooltipWrapper>
                           );
-
+                        } else {
                           return (
                             <Button
                               key={model.value}
@@ -214,7 +214,6 @@ export function AIProviderSelector({
                                 model.isDisabled && "opacity-50 cursor-not-allowed",
                               )}
                               onClick={() => handleModelSelect(model.value)}
-                              disabled={model.isDisabled}
                             >
                               <div className="flex flex-col items-center gap-3 flex-1">
                                 {model.icon}
