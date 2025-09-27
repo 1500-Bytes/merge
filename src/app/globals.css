@@ -48,6 +48,29 @@
     --color-color-3: var(--color-3);
     --color-color-2: var(--color-2);
     --color-color-1: var(--color-1);
+    --animate-aurora: aurora 8s ease-in-out infinite alternate;
+    @keyframes aurora {
+        0% {
+            background-position: 0% 50%;
+            transform: rotate(-5deg) scale(0.9);
+        }
+        25% {
+            background-position: 50% 100%;
+            transform: rotate(5deg) scale(1.1);
+        }
+        50% {
+            background-position: 100% 50%;
+            transform: rotate(-3deg) scale(0.95);
+        }
+        75% {
+            background-position: 50% 0%;
+            transform: rotate(3deg) scale(1.05);
+        }
+        100% {
+            background-position: 0% 50%;
+            transform: rotate(-5deg) scale(0.9);
+        }
+    }
 }
 
 :root {
@@ -136,4 +159,38 @@
     body {
         @apply bg-background text-foreground;
     }
+}
+
+/* Custom scrollbar styles */
+.scrollbar-thin {
+    scrollbar-width: thin;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: oklch(var(--muted-foreground) / 0.2);
+    border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: oklch(var(--muted-foreground) / 0.3);
+}
+
+.scrollbar-track-transparent::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.scrollbar-thumb-muted::-webkit-scrollbar-thumb {
+    background-color: oklch(var(--muted-foreground) / 0.2);
+}
+
+.scrollbar-thumb-muted::-webkit-scrollbar-thumb:hover {
+    background-color: oklch(var(--muted-foreground) / 0.3);
 }
