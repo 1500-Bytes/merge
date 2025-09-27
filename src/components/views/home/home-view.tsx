@@ -1,5 +1,4 @@
 import { HeroHeader } from "@/components/custom/header";
-import LightRays from "@/components/custom/light-rays";
 import { Highlighter } from "@/components/magicui/highlighter";
 import { RainbowButton } from "@/components/magicui/rainbow-button";
 import { AnimatedGroup } from "@/components/ui/animated-group";
@@ -13,20 +12,6 @@ export default function HomeView() {
     <>
       <HeroHeader />
       <main className="relative min-h-screen overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none z-0">
-          {/*<LightRays
-            raysOrigin="top-center"
-            raysColor="hsl(var(--foreground))"
-            raysSpeed={1}
-            lightSpread={0.6}
-            rayLength={1}
-            followMouse={true}
-            mouseInfluence={0.1}
-            noiseAmount={0.1}
-            distortion={0.05}
-            className=""
-          />*/}
-        </div>
         <section className="relative z-10">
           <div className="relative pt-24 md:pt-36">
             <AnimatedGroup
@@ -101,8 +86,7 @@ export default function HomeView() {
                     </div>
                   </Link>
                 </AnimatedGroup>
-
-                <h1 className="mt-8 tracking-tight max-sm:text-4xl font-bold text-6xl md:text-7xl lg:mt-16 xl:text-[5.25rem]">
+                <h1 className="mt-8 tracking-tight max-sm:text-4xl font-bold text-6xl md:text-7xl lg:mt-12 xl:text-[5.25rem]">
                   Build Modern Websites In{" "}
                   <Highlighter color="#FF1616" multiline>
                     Minutes
