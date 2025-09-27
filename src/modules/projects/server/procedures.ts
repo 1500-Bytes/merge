@@ -2,7 +2,7 @@ import { db, messages, projects } from "@/db";
 import { inngest } from "@/inngest/client";
 import { baseProcedure, createTRPCRouter } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
-import { asc, eq } from "drizzle-orm";
+import { desc, eq, lt } from "drizzle-orm";
 import { generateSlug } from "random-word-slugs";
 import { z } from "zod";
 
@@ -97,14 +97,44 @@ export const projectsRouter = createTRPCRouter({
 
   ///////////////////////////////////////
   ///////////////////////////////////////
-  /////// getMany
-  getMany: baseProcedure.query(async () => {
-    const fetchedProjects = await db
-      .select()
-      .from(projects)
-      .leftJoin(messages, eq(messages.projectId, projects.id))
-      .orderBy(asc(projects.updatedAt));
+  /////// getMany - Updated for infinite query support
+  getMany: baseProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(50).default(20),
+        cursor: z.string().nullish(), // cursor for infinite queries
+      }),
+    )
+    .query(async ({ input }) => {
+      const { limit, cursor } = input;
 
-    return fetchedProjects;
-  }),
+      // Build the where condition based on cursor
+      const whereCondition = cursor
+        ? lt(projects.updatedAt, new Date(cursor))
+        : undefined;
+
+      const fetchedProjects = await db
+        .select({
+          id: projects.id,
+          name: projects.name,
+          createdAt: projects.createdAt,
+          updatedAt: projects.updatedAt,
+        })
+        .from(projects)
+        .where(whereCondition)
+        .orderBy(desc(projects.updatedAt))
+        .limit(limit + 1); // Get one extra to determine if there are more
+
+      // Determine next cursor
+      let nextCursor: string | undefined = undefined;
+      if (fetchedProjects.length > limit) {
+        const nextItem = fetchedProjects.pop(); // Remove the extra item
+        nextCursor = nextItem!.updatedAt.toISOString();
+      }
+
+      return {
+        projects: fetchedProjects,
+        nextCursor,
+      };
+    }),
 });
