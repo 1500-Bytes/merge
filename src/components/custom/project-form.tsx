@@ -33,7 +33,7 @@ const formSchema = z.object({
 });
 
 export function ProjectForm() {
-  const { isGeneratingContent, selectedModal, setSelectedModal, setIsGeneratingContent } =
+  const { isGeneratingContent, setSelectedModal, setIsGeneratingContent } =
     useProjectContext();
   const [status, setStatus] = useState<ChatStatus | undefined>();
   const router = useRouter();
@@ -45,7 +45,7 @@ export function ProjectForm() {
         setIsGeneratingContent(true);
         console.log({ "from project from": isGeneratingContent });
         setStatus("submitted");
-        queryClient.invalidateQueries(trpc.projects.getMany.queryOptions());
+        queryClient.invalidateQueries(trpc.projects.getMany.queryOptions({}));
         router.push(`/projects/${data.id}`);
       },
       onError: (error) => {
